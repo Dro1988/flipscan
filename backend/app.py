@@ -173,19 +173,32 @@ def ebay_search(query, sold):
 # ---------------------------------------------------------------- /lookup
 
 def off_identity(ean):
-    """Open Food Facts identity (no prices). Returns (identity|None, status)."""
-    status, d = fetch_json(
-        "https://world.openfoodfacts.org/api/v2/product/%s.json" % ean)
-    if status == 200 and d and d.get("status") == 1:
-        p = d.get("product") or {}
-        img = p.get("image_front_url") or p.get("image_url") or ""
-        return {
-            "title": p.get("product_name") or "",
-            "brand": p.get("brands") or "",
-            "image": img,
-            "source": "Open Food Facts",
-        }, "ok"
-    return None, "miss"
+    """Open Food Facts identity (no prices). Returns (identity|None, status).
+
+    Tries the .org host, then the .net mirror: OFF throttles some
+    datacenter egress IPs per-host, and the status reports the HTTP
+    code when a lookup is refused rather than calling it a miss.
+    """
+    last = "miss"
+    for host in ("world.openfoodfacts.org", "world.openfoodfacts.net"):
+        status, d = fetch_json(
+            "https://%s/api/v2/product/%s.json" % (host, ean))
+        if status == 200 and d and d.get("status") == 1:
+            p = d.get("product") or {}
+            img = p.get("image_front_url") or p.get("image_url") or ""
+            return {
+                "title": p.get("product_name") or "",
+                "brand": p.get("brands") or "",
+                "image": img,
+                "source": "Open Food Facts",
+            }, "ok"
+        if status == 200:
+            last = "miss"
+        elif status:
+            last = "http_%s" % status
+        else:
+            last = "error"
+    return None, last
 
 
 def upcitemdb_lookup(upc):
