@@ -55,6 +55,7 @@ public class HaulActivity extends Activity {
         ScrollView sv = new ScrollView(this);
         sv.addView(root);
         setContentView(sv);
+        Ui.safeArea(sv);
         render();
     }
 

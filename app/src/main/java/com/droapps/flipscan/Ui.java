@@ -3,8 +3,10 @@ package com.droapps.flipscan;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,6 +26,33 @@ public class Ui {
 
     public static int dp(Activity a, int v) {
         return (int) (v * a.getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    /** System-bar insets as {left, top, right, bottom} in px. */
+    public static int[] sysInsets(WindowInsets insets) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            android.graphics.Insets sb = insets.getInsets(WindowInsets.Type.systemBars());
+            return new int[]{sb.left, sb.top, sb.right, sb.bottom};
+        }
+        return new int[]{insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
+                insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom()};
+    }
+
+    /**
+     * Keep a screen's content clear of the phone's status bar and bottom
+     * navigation/gesture bar. Target SDK 35+ draws edge-to-edge, so without
+     * this the bottom buttons sit underneath the phone UI (user report,
+     * 2026-11-03). Adds the system insets on top of the view's own padding.
+     */
+    public static void safeArea(final View v) {
+        final int pl = v.getPaddingLeft(), pt = v.getPaddingTop();
+        final int pr = v.getPaddingRight(), pb = v.getPaddingBottom();
+        v.setOnApplyWindowInsetsListener((view, insets) -> {
+            int[] sb = sysInsets(insets);
+            view.setPadding(pl + sb[0], pt + sb[1], pr + sb[2], pb + sb[3]);
+            return insets;
+        });
+        v.requestApplyInsets();
     }
 
     public static String money(double v) {

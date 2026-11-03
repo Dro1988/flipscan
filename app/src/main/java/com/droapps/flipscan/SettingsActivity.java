@@ -62,6 +62,7 @@ public class SettingsActivity extends Activity {
         ScrollView sv = new ScrollView(this);
         sv.addView(root);
         setContentView(sv);
+        Ui.safeArea(sv);
     }
 
     private EditText field(LinearLayout root, String label, String value) {

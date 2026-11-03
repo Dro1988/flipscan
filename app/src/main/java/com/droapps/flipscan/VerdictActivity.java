@@ -206,6 +206,7 @@ public class VerdictActivity extends Activity {
         ScrollView sv = new ScrollView(this);
         sv.addView(root);
         setContentView(sv);
+        Ui.safeArea(sv);
     }
 
     private LinearLayout buildPad() {

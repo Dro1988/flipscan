@@ -87,6 +87,7 @@ public class MainActivity extends Activity {
         ScrollView sv = new ScrollView(this);
         sv.addView(root);
         setContentView(sv);
+        Ui.safeArea(sv);
     }
 
     @Override

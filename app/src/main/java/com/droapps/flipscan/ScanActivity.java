@@ -165,6 +165,20 @@ public class ScanActivity extends Activity {
         root.addView(controls, cp);
         setContentView(root);
 
+        // Preview stays full-bleed, but keep the title and the bottom
+        // controls clear of the phone's status bar and nav/gesture bar.
+        root.setOnApplyWindowInsetsListener((v, insets) -> {
+            int[] sb = Ui.sysInsets(insets);
+            cp.bottomMargin = dp(56) + sb[3];
+            controls.setLayoutParams(cp);
+            hp.bottomMargin = dp(150) + sb[3];
+            hint.setLayoutParams(hp);
+            tp.topMargin = dp(48) + sb[1];
+            title.setLayoutParams(tp);
+            return insets;
+        });
+        root.requestApplyInsets();
+
         // ZXing reader configured for retail barcodes
         reader = new MultiFormatReader();
         Map<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);

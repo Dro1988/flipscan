@@ -13,8 +13,8 @@ BUILD=$PROJ/build
 APPID=com.droapps.flipscan
 MINSDK=26
 TARGETSDK=36
-VERSION_CODE=2
-VERSION_NAME=1.1
+VERSION_CODE=3
+VERSION_NAME=1.2
 ZXING_JAR=/home/hatch/workspace/.tools/aar/zxing-core-3.5.3/classes.jar
 
 rm -rf "$BUILD"
