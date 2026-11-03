@@ -51,6 +51,8 @@ public class VerdictActivity extends Activity {
 
     private TextView statusTv, titleTv, metaTv, basisTv, basisSubTv;
     private TextView breakdownTv, profitTv, verdictTv, verdictSubTv, shelfTv;
+    private TextView marketTv;
+    private View marketCard;
     private ImageView photoIv;
     private EditText shipEt;
     private LinearLayout storeRow;
@@ -110,6 +112,17 @@ public class VerdictActivity extends Activity {
         basisInner.addView(basisTv);
         basisInner.addView(basisSubTv);
         root.addView(Ui.card(this, basisInner), Ui.lp(this, -1, -2, 0, 0, 0, 12));
+
+        // market card: per-store current prices + trend, source-labeled
+        LinearLayout marketInner = new LinearLayout(this);
+        marketInner.setOrientation(LinearLayout.VERTICAL);
+        marketInner.addView(Ui.text(this, "PRICES AROUND THE WEB", 13, Ui.TEXT_LO, true));
+        marketTv = Ui.text(this, "", 15, Ui.TEXT_HI, false);
+        marketTv.setLineSpacing(0, 1.3f);
+        marketInner.addView(marketTv, Ui.lp(this, -1, -2, 0, 6, 0, 0));
+        marketCard = Ui.card(this, marketInner);
+        marketCard.setVisibility(View.GONE);
+        root.addView(marketCard, Ui.lp(this, -1, -2, 0, 0, 0, 12));
 
         // shelf price + numpad
         TextView shelfLbl = Ui.text(this, "SHELF PRICE (what the store wants)", 13, Ui.TEXT_LO, true);
@@ -380,6 +393,8 @@ public class VerdictActivity extends Activity {
             statusTv.setTextColor(Ui.BAD);
         }
 
+        renderMarket();
+
         if (!shelfPrefilled && shelfStr.isEmpty()) {
             JSONObject a = result.optJSONObject("asking");
             if (a != null && a.optDouble("min") > 0) {
@@ -387,6 +402,42 @@ public class VerdictActivity extends Activity {
                 shelfPrefilled = true;
                 shelfTv.setText(Ui.money(shelfPrice()));
             }
+        }
+    }
+
+    /** Per-store current prices + trend, each line naming its source. */
+    private void renderMarket() {
+        if (result == null || marketTv == null) return;
+        StringBuilder sb = new StringBuilder();
+        org.json.JSONArray sp = result.optJSONArray("storePrices");
+        if (sp != null) {
+            for (int i = 0; i < sp.length() && i < 8; i++) {
+                org.json.JSONObject o = sp.optJSONObject(i);
+                if (o == null) continue;
+                if (sb.length() > 0) sb.append("\n");
+                sb.append(o.optString("store"));
+                String city = o.optString("city");
+                if (!city.isEmpty()) sb.append(" (").append(city).append(")");
+                sb.append(" — ").append(Ui.money(o.optDouble("price")));
+                sb.append("  · ").append(o.optString("source"));
+                String when = o.optString("date");
+                if (when.isEmpty()) when = o.optString("updated");
+                if (!when.isEmpty()) sb.append(" · ").append(when);
+            }
+        }
+        JSONObject t = result.optJSONObject("trend");
+        if (t != null && !t.optString("signal").isEmpty()) {
+            if (sb.length() > 0) sb.append("\n");
+            String sig = t.optString("signal");
+            String arrow = "rising".equals(sig) ? "↑" : "falling".equals(sig) ? "↓" : "→";
+            sb.append("Trend ").append(arrow).append(" ").append(sig).append(": ")
+              .append(t.optString("detail"));
+        }
+        if (sb.length() == 0) {
+            marketCard.setVisibility(View.GONE);
+        } else {
+            marketTv.setText(sb.toString());
+            marketCard.setVisibility(View.VISIBLE);
         }
     }
 

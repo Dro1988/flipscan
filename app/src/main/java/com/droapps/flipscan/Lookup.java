@@ -96,6 +96,12 @@ public class Lookup {
             r.put("identitySource", "");
         }
 
+        // Aggregated market view from our backend: per-store current
+        // prices (UPCitemdb offers + Open Prices), identity gap-fill,
+        // and a trend signal computed from dated records. Every entry
+        // carries its source; failures simply contribute nothing.
+        mergeBackendLookup(r, upc);
+
         fillEbay(r, upc, upc);
         finishKind(r);
         store.cachePut(key, r.toString());
@@ -190,6 +196,58 @@ public class Lookup {
             }
         } catch (Exception ignored) {}
         return null;
+    }
+
+    // ------------------------------------------------- backend aggregate
+
+    private void mergeBackendLookup(JSONObject r, String upc) {
+        try {
+            String backend = store.backendUrl().replaceAll("/+$", "");
+            String body = httpGet(backend + "/lookup?upc="
+                    + URLEncoder.encode(upc, "UTF-8"), 90000);
+            JSONObject d = new JSONObject(body);
+            if (!d.optBoolean("ok")) return;
+
+            JSONObject bid = d.optJSONObject("identity");
+            if (bid != null) {
+                if (r.optString("title").isEmpty() && !bid.optString("title").isEmpty()) {
+                    r.put("title", bid.optString("title"));
+                    r.put("brand", bid.optString("brand"));
+                    r.put("identitySource", bid.optString("source"));
+                }
+                if (r.optString("image").isEmpty() && !bid.optString("image").isEmpty())
+                    r.put("image", bid.optString("image"));
+            }
+
+            JSONArray sp = d.optJSONArray("store_prices");
+            if (sp != null && sp.length() > 0) {
+                r.put("storePrices", sp);
+                // asking summary becomes the fallback basis when the
+                // phone-side UPCitemdb call produced none (e.g. quota)
+                if (!r.has("asking")) {
+                    JSONObject ba = d.optJSONObject("asking");
+                    if (ba != null) {
+                        JSONObject a = new JSONObject();
+                        a.put("min", ba.optDouble("min"));
+                        a.put("median", ba.optDouble("median"));
+                        a.put("count", ba.optInt("count"));
+                        a.put("source", "store listings via FlipScan server");
+                        r.put("asking", a);
+                    }
+                }
+            }
+
+            JSONObject trend = d.optJSONObject("trend");
+            if (trend != null) r.put("trend", trend);
+
+            JSONObject srcs = d.optJSONObject("sources");
+            if (srcs != null && "rate_limited".equals(srcs.optString("upcitemdb"))
+                    && !r.has("asking")) {
+                String n = r.optString("ebayNote");
+                r.put("ebayNote", (n.isEmpty() ? "" : n + "; ")
+                        + "UPCitemdb store offers rate-limited right now");
+            }
+        } catch (Exception ignored) {}
     }
 
     // ------------------------------------------------------------ eBay
