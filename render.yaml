@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: flipscan-api
+    env: python
+    plan: free
+    buildCommand: "echo no build step"
+    startCommand: "python backend/app.py"
