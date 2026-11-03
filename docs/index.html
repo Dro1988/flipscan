@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlipScan — clearance barcode scanner</title>
+<style>
+  body { font-family: system-ui, sans-serif; background:#101418; color:#F2F5F7;
+         margin:0; padding:24px 18px 48px; }
+  .wrap { max-width:560px; margin:0 auto; }
+  h1 { color:#35C759; margin:8px 0 4px; font-size:34px; }
+  .sub { color:#9AA7B4; margin:0 0 22px; }
+  .btn { display:block; text-align:center; background:#35C759; color:#0B0E11;
+         font-weight:700; font-size:20px; padding:16px; border-radius:12px;
+         text-decoration:none; margin:18px 0; }
+  .card { background:#1B2129; border-radius:14px; padding:16px 18px; margin:14px 0; }
+  .card h2 { margin:0 0 8px; font-size:17px; }
+  .card p, .card li { color:#C9D3DC; font-size:15px; line-height:1.45; }
+  .meta { color:#9AA7B4; font-size:13px; }
+  code { background:#0B0E11; padding:1px 5px; border-radius:4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>FlipScan</h1>
+  <p class="sub">Scan a clearance barcode. See what it sells for. Buy it or skip it — right there in the aisle.</p>
+
+  <a class="btn" href="FlipScan.apk">⬇ Install FlipScan v1.0</a>
+  <p class="meta">Android · package <code>com.droapps.flipscan</code> · version 1.0 (code 1) ·
+     APK MD5 <code>918a53a3e01046812c4ce689f7379203</code></p>
+
+  <div class="card">
+    <h2>How to install</h2>
+    <ol>
+      <li>Tap the install button above and download the APK.</li>
+      <li>Open it. If Android asks, allow installs from your browser ("Install unknown apps").</li>
+      <li>Open FlipScan and allow the camera — that's the barcode scanner.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>What it does</h2>
+    <ul>
+      <li>Continuous barcode scan (or type a UPC / product name for damaged barcodes).</li>
+      <li>Shows the product, its typical resale price, and where the number came from.</li>
+      <li>Big-keypad shelf price → full math on screen: resale − eBay fees − shipping − your price = <b>net profit</b>, with a plain <b>BUY / MAYBE / SKIP</b> verdict.</li>
+      <li>Every scan lands on your haul list; tap items you bought and watch the session profit total.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Honest note on prices</h2>
+    <p>Product ID and going asking prices come from UPCitemdb / Open Food Facts and work today.
+       eBay <i>sold</i> prices are attempted three ways (price server, direct, in-app browser) and are
+       always labeled by source on screen. When sold data can't be reached, the verdict says so and is
+       capped at MAYBE rather than pretending. An official eBay developer key is the planned permanent
+       fix for sold data.</p>
+  </div>
+</div>
+</body>
+</html>

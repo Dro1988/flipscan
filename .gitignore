@@ -1,0 +1,4 @@
+build/
+*.keystore
+keystore-pass.txt
+__pycache__/
